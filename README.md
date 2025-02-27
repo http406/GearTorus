@@ -6,7 +6,11 @@ The **GearTorus** is a 3D geometric shape that resembles a torus (a doughnut-sha
 
 The parametric equations used to define the GearTorus are:
 
-![Image](https://github.com/user-attachments/assets/ad2e1918-6470-4296-91a4-a3843a347645)
+![Image](https://github.com/user-attachments/assets/49fdf0bb-c3f4-4272-8d64-6cc09bb0a2c4)
+
+In this specific case, the minor radius \( r \) is not constant but varies based on the following equation:
+
+![Image](https://github.com/user-attachments/assets/a9a30ad3-7e41-4d77-991c-cafb9a9e737b)
 
 ### Explanation of the Code
 
