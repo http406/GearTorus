@@ -4,31 +4,7 @@ The **GearTorus** is a 3D geometric shape that resembles a torus (a doughnut-sha
 
 ### GearTorus Equation
 
-The parametric equations used to define the GearTorus are:
-
-\[
-\begin{cases}
-x = (R + r \cos(v)) \cos(u) \\
-y = r \sin(v) \\
-z = (R + r \cos(v)) \sin(u)
-\end{cases}
-\]
-
-Where:
-- \( R \) is the major radius of the torus (the distance from the center of the torus to the center of the tube).
-- \( r \) is the minor radius of the torus (the radius of the tube).
-- \( u \) and \( v \) are the parametric angles, ranging from \( 0 \) to \( 2\pi \).
-
-In this specific case, the minor radius \( r \) is not constant but varies based on the following equation:
-
-\[
-r = \frac{a \tanh(b \sin(nv))}{b}
-\]
-
-Where:
-- \( a \) and \( b \) are constants that control the amplitude and shape of the modulation.
-- \( n \) is the number of gear teeth (or lobes) around the torus.
-- \( \tanh \) is the hyperbolic tangent function, which smooths the transitions between the ridges and valleys.
+![Image](https://github.com/user-attachments/assets/ad2e1918-6470-4296-91a4-a3843a347645)
 
 ### Explanation of the Code
 
