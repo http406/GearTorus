@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear Torus</title>
+    <style>
+        body { 
+        margin: 0; 
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        }
+        canvas { display: block; }
+        #infoButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .info-popup {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            width: 300px;
+            text-align: left;
+            user-select: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <button id="infoButton">&#9432;</button>
+    <div class="info-popup" id="infoPopup">
+        <p style="text-align:center;" ><strong>GearTorus</strong></p>
+    <p style="color:pink; text-align: center;">The GearTorus is a 3D geometric shape that resembles a torus (a doughnut-shaped surface) but with a gear-like structure on its surface. The gear-like appearance is achieved by modulating the radius of the torus in a periodic manner, creating ridges and valleys that mimic the teeth of a gear.</p>
+            <p style="text-align:center;">For Equations visit my Github. Enjoy!</p>
+    </div>
+    <script>
+        let scene, camera, renderer, stars;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 10;
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            createStars(); 
+            createShaderGearTorus(); 
+
+            animate();
+        }
+
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            const starColors = [];
+            const numStars = 1000;
+
+            for (let i = 0; i < numStars; i++) {
+                let x = (Math.random() - 0.5) * 200;
+                let y = (Math.random() - 0.5) * 200;
+                let z = (Math.random() - 0.5) * 200;
+                starVertices.push(x, y, z);
+
+                // Assign a random color
+                starColors.push(Math.random(), Math.random(), Math.random());
+            }
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                vertexColors: true,
+                size: 0.2,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function createShaderGearTorus() {
+            const R = 2.5, a = 3.2, b = 2.6, n = 7;
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const colors = [];
+
+            for (let u = 0; u <= 2 * Math.PI; u += 0.1) {
+                for (let v = 0; v <= 2 * Math.PI; v += 0.1) {
+                    const r = (a * Math.tanh(b * Math.sin(n * v))) / b;
+                    const x = (R + r * Math.cos(v)) * Math.cos(u);
+                    const y = r * Math.sin(v);
+                    const z = (R + r * Math.cos(v)) * Math.sin(u);
+                    vertices.push(x, y, z);
+
+                    // Gradient color effect
+                    colors.push(Math.sin(u) * 0.5 + 0.5, Math.cos(v) * 0.5 + 0.5, Math.sin(v) * 0.5 + 0.5);
+                }
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const material = new THREE.ShaderMaterial({
+                vertexColors: true,
+                vertexShader: `
+                    varying vec3 vColor;
+                    void main() {
+                        vColor = color;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+                    void main() {
+                        gl_FragColor = vec4(vColor, 1.0);
+                    }
+                `
+            });
+
+            const gearTorus = new THREE.LineSegments(geometry, material);
+            scene.add(gearTorus);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate stars slightly for a twinkling effect
+            stars.rotation.y += 0.00001;
+            stars.rotation.x += 0.00001;
+
+            // Change star colors randomly
+            const colors = stars.geometry.attributes.color.array;
+            for (let i = 0; i < colors.length; i += 3) {
+                colors[i] = Math.random();
+                colors[i + 1] = Math.random();
+                colors[i + 2] = Math.random();
+            }
+            stars.geometry.attributes.color.needsUpdate = true;
+
+            // Rotate everything slightly
+            scene.children.forEach(object => {
+                object.rotation.x += 0.005;
+                object.rotation.y += 0.005;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        init();
+        
+        $("#infoButton").click(function() {
+            $("#infoPopup").fadeToggle();
+        });
+    </script>
+</body>
+      </html>
+      
